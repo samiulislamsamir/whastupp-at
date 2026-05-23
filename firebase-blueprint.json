@@ -1,0 +1,198 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "A student registered in the school system.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the student" },
+        "roll": { "type": "integer", "description": "Roll number" },
+        "phone": { "type": "string", "description": "WhatsApp phone number (intl format)" },
+        "class": { "type": "string", "description": "Class identifier" },
+        "section": { "type": "string", "description": "Section identifier" },
+        "ownerId": { "type": "string", "description": "The UID of the staff member who registered this student" }
+      },
+      "required": ["name", "roll", "phone", "class", "section", "ownerId"]
+    },
+    "ScheduledMessage": {
+      "title": "Scheduled Message",
+      "description": "A message scheduled to be posted via WhatsApp or notice board.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string", "description": "The message content" },
+        "scheduledTime": { "type": "string", "format": "date-time", "description": "When to post" },
+        "status": { "type": "string", "enum": ["pending", "sent", "failed"] },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["content", "scheduledTime", "status", "ownerId"]
+    },
+    "AttendanceReport": {
+      "title": "Attendance Report",
+      "description": "A daily summary of student attendance.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date", "description": "Report date" },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "total": { "type": "integer" },
+            "present": { "type": "integer" },
+            "absent": { "type": "integer" }
+          }
+        },
+        "absentRolls": { "type": "array", "items": { "type": "integer" } },
+        "message": { "type": "string", "description": "The generated report message" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["date", "stats", "absentRolls", "message", "ownerId"]
+    },
+    "Attendance": {
+      "title": "Attendance Session",
+      "description": "An attendance session record containing lists of present and absent student rolls.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "description": "Local date in YYYY-MM-DD format" },
+        "class": { "type": "string" },
+        "section": { "type": "string" },
+        "absentRolls": { "type": "array", "items": { "type": "integer" } },
+        "presentRolls": { "type": "array", "items": { "type": "integer" } },
+        "totalStudentsCount": { "type": "integer" },
+        "ownerId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "class", "section", "absentRolls", "presentRolls", "totalStudentsCount", "ownerId", "timestamp"]
+    },
+    "StaffMember": {
+      "title": "Staff Member",
+      "description": "A registered school staff member.",
+      "type": "object",
+      "properties": {
+        "numericId": { "type": "string", "description": "6-digit unique login ID" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "whatsappGroupLink": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["numericId", "name", "email", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user of the platform.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "bio": { "type": "string" },
+        "profilePictureUrl": { "type": "string" },
+        "displayName": { "type": "string" }
+      },
+      "required": ["username", "email", "passwordHash", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A social media post.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "mediaUrl": { "type": "array", "items": { "type": "string" } },
+        "mediaType": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["userId", "content", "createdAt"]
+    },
+    "Like": {
+      "title": "Like",
+      "description": "A like on a post.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "postId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "postId", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A comment on a post.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "postId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "postId", "text", "createdAt"]
+    },
+    "Follow": {
+      "title": "Follow",
+      "description": "A follow relationship between users.",
+      "type": "object",
+      "properties": {
+        "followerId": { "type": "string" },
+        "followedId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["followerId", "followedId", "createdAt"]
+    },
+    "Block": {
+      "title": "Block",
+      "description": "A block relationship between users.",
+      "type": "object",
+      "properties": {
+        "blockerId": { "type": "string" },
+        "blockedId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["blockerId", "blockedId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "students": {
+      "schema": "Student",
+      "description": "List of all students."
+    },
+    "scheduled_messages": {
+      "schema": "ScheduledMessage",
+      "description": "Messages waiting to be delivered."
+    },
+    "attendance_reports": {
+      "schema": "AttendanceReport",
+      "description": "Historical attendance data."
+    },
+    "attendance": {
+      "schema": "Attendance",
+      "description": "Daily details of present and absent student counts and rosters."
+    },
+    "staff": {
+      "schema": "StaffMember",
+      "description": "Metadata for authenticated staff."
+    },
+    "users": {
+      "schema": "User",
+      "description": "User account data."
+    },
+    "posts": {
+      "schema": "Post",
+      "description": "Feeds of posts."
+    },
+    "likes": {
+      "schema": "Like",
+      "description": "Likes on posts."
+    },
+    "comments": {
+      "schema": "Comment",
+      "description": "Comments on posts."
+    },
+    "follows": {
+      "schema": "Follow",
+      "description": "Social graph."
+    },
+    "blocks": {
+      "schema": "Block",
+      "description": "Blocked users."
+    }
+  }
+}

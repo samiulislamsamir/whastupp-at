@@ -1,0 +1,6 @@
+{
+  "name": "School Workflow Automation",
+  "description": "A comprehensive dashboard for managing school attendance, student registration, and scheduled notices with WhatsApp integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

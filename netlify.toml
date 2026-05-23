@@ -1,0 +1,12 @@
+# Netlify Configuration File
+# This ensures that our single-page application (SPA) client-side routes
+# like /admin work seamlessly when refreshed or accessed directly.
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build]
+  publish = "dist"
+  command = "npm run build"

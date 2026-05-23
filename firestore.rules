@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Checking if the user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Checking if a student object is valid
+    function isValidStudent(student) {
+      return student.name is string && student.name.size() <= 100
+        && (student.roll is int || student.roll is string)
+        && student.phone is string && student.phone.size() <= 30
+        && student.class is string && student.class.size() <= 50
+        && student.section is string && student.section.size() <= 50
+        && student.ownerId == request.auth.uid;
+    }
+
+    // School staff configuration
+    match /staff/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Student records management
+    match /students/{studentId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid && isValidStudent(request.resource.data);
+      allow update: if isSignedIn() && resource.data.ownerId == request.auth.uid && request.resource.data.ownerId == request.auth.uid && isValidStudent(request.resource.data);
+      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // WhatsApp and Notice Board Scheduled Messages
+    match /scheduled_messages/{messageId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    // Historical attendance summaries and reports
+    match /attendance_reports/{reportId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    // Historical attendance session records
+    match /attendance/{attendanceId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.ownerId == request.auth.uid && request.resource.data.ownerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // General user profiles (if any exist)
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Support for other prototype paths
+    match /posts/{postId} {
+      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+    }
+
+    match /likes/{likeId} {
+      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+    }
+
+    match /comments/{commentId} {
+      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+    }
+
+    match /follows/{followId} {
+      allow read, write: if isSignedIn() && (resource == null || resource.data.followerId == request.auth.uid);
+    }
+
+    match /blocks/{blockId} {
+      allow read, write: if isSignedIn() && (resource == null || resource.data.blockerId == request.auth.uid);
+    }
+
+    // Rules for connection tests and diagnostics
+    match /test/{testId} {
+      allow read, write: if true;
+    }
+  }
+}
